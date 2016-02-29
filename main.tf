@@ -17,27 +17,17 @@ resource "aws_instance" "server" {
 
   provisioner "remote-exec" {
     scripts = [
-      "${path.module}/scripts/wait-for-ready.sh"
-    ]
-  }
-
-  provisioner "file" {
-    source      = "${path.module}/scripts/upstart.conf"
-    destination = "/tmp/upstart.conf"
-  }
-
-  provisioner "remote-exec" {
-    scripts = [
+      "${path.module}/scripts/wait-for-ready.sh",
       "${path.module}/scripts/install.sh",
     ]
   }
 
   provisioner "remote-exec" {
     inline = [
-      "echo 'CONSUL_SERVERS=${var.servers}' | sudo tee -a /etc/service/consul",
-      "echo 'ATLAS_ENVIRONMENT=${var.atlas_environment}' | sudo tee -a /etc/service/consul",
-      "echo 'ATLAS_TOKEN=${var.atlas_token}' | sudo tee -a /etc/service/consul",
-      "echo 'NODE_NAME=consul-${count.index}' | sudo tee -a /etc/service/consul",
+      "echo 'CONSUL_SERVERS=${var.servers}' | sudo tee -a /etc/service/consul &>/dev/null",
+      "echo 'ATLAS_ENVIRONMENT=${var.atlas_environment}' | sudo tee -a /etc/service/consul &>/dev/null",
+      "echo 'ATLAS_TOKEN=${var.atlas_token}' | sudo tee -a /etc/service/consul &>/dev/null",
+      "echo 'NODE_NAME=consul-${count.index}' | sudo tee -a /etc/service/consul &>/dev/null",
       "sudo service consul restart",
     ]
   }
